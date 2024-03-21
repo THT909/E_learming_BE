@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpException,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -19,16 +20,19 @@ export class AuthController {
 
   @Post('login')
   login(@Body() authPayLoad: AuthPayLoadDto) {
-    // if(!authPayLoad.email){
-    //   throw new
-    // }
-
+    if (!authPayLoad.email || !authPayLoad.password) {
+      throw new HttpException(
+        'Email or Password are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const user = this.authService.validateUser(authPayLoad);
     if (!user) {
       throw new HttpException('invalid', 401);
     }
     return user;
   }
+
   @Post('refresh')
   @ApiBody({
     schema: { example: { refresh_token: 'your_refresh_token_here' } },
@@ -38,6 +42,9 @@ export class AuthController {
     description: 'Refreshed access token successfully.',
   })
   async getAccessToken(@Body() body: { refresh_token: string }) {
+    if (!body.refresh_token) {
+      throw new HttpException('Token required', HttpStatus.BAD_REQUEST);
+    }
     const { refresh_token } = body;
     const data = await this.authService.getAccessToken(refresh_token);
 

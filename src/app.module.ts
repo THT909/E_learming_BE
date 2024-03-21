@@ -12,15 +12,19 @@ import { AuthModule } from './common/auth/auth.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.DATABASE_LOCALHOST, {
-      connectionFactory: (connection) => {
-        connection.on('connected', () => {
-          console.log('\x1b[36m%s\x1b[0m', 'DATABASE IS CONNECTED !!');
-        });
-        connection._events.connected();
-        return connection;
+    MongooseModule.forRoot(
+      process.env.DATABASE_ATLAS,
+
+      {
+        connectionFactory: (connection) => {
+          connection.on('connected', () => {
+            console.log('\x1b[36m%s\x1b[0m', 'DATABASE IS CONNECTED !!');
+          });
+          connection._events.connected();
+          return connection;
+        },
       },
-    }),
+    ),
     UserModule,
     AuthModule,
   ],
