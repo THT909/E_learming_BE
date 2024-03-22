@@ -1,28 +1,29 @@
 import {
   Body,
-  Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  NotFoundException,
-  Param,
-  Post,
-  Headers,
   Put,
+  Res,
+  Post,
+  Param,
+  Delete,
+  Headers,
+  HttpCode,
   UseGuards,
+  Controller,
+  HttpStatus,
   UploadedFile,
+  HttpException,
   UseInterceptors,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  ApiTags,
+  ApiBody,
+  ApiHeader,
   ApiOperation,
   ApiResponse,
-  ApiTags,
   ApiConsumes,
-  ApiHeader,
-  ApiBody,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -30,6 +31,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as fs from 'fs';
+import { Response } from 'express';
 const PUBLIC_DIR = join(__dirname, '..', '..', '..', 'public');
 
 @ApiTags('User')
@@ -119,5 +121,11 @@ export class UserController {
       }
       console.log('File saved successfully:', filePath);
     });
+  }
+
+  @Get('image/:imageName')
+  async getImage(@Res() res: Response, @Param('imageName') imageName: string) {
+    const imagePath = join(__dirname, '..', '..', '..', 'public', imageName);
+    res.sendFile(imagePath);
   }
 }
