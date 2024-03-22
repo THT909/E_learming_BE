@@ -10,15 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthPayLoadDto } from './dto/auth.dto';
-import { AuthService } from './auth.service';
 
-import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiBody } from '@nestjs/swagger';
+import { UserService } from 'src/modules/user/user.service';
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: UserService) {}
 
-  @Post('login')
+  @Post('sign_in')
   login(@Body() authPayLoad: AuthPayLoadDto) {
     if (!authPayLoad.email || !authPayLoad.password) {
       throw new HttpException(
@@ -26,7 +25,7 @@ export class AuthController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const user = this.authService.validateUser(authPayLoad);
+    const user = this.authService.signIn(authPayLoad);
     if (!user) {
       throw new HttpException('invalid', 401);
     }
@@ -35,7 +34,7 @@ export class AuthController {
 
   @Post('refresh')
   @ApiBody({
-    schema: { example: { refresh_token: 'your_refresh_token_here' } },
+    schema: { example: { refresh_token: 'Input token here' } },
   })
   @ApiResponse({
     status: 200,

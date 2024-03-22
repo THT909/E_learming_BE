@@ -12,7 +12,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
@@ -62,6 +62,25 @@ export class UserController {
   async delete(@Param('id') id: string) {
     return await this.service.delete(id);
   }
+  @ApiTags('User service')
+  @Post('get_data_user')
+  @ApiBody({
+    schema: { example: { token: 'Input token here' } },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get data successfully.',
+  })
+  async getAccessToken(@Body() body: { token: string }) {
+    if (!body.token) {
+      throw new HttpException('Token required', HttpStatus.BAD_REQUEST);
+    }
+    const { token } = body;
+    const data = await this.service.getDataUserByToken(token);
+
+    return data;
+  }
+
   // @Get('email/:email')
   // async finByEmail(@Param('email') email: string) {
   //   {

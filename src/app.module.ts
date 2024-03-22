@@ -13,7 +13,7 @@ import { AuthModule } from './common/auth/auth.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(
-      process.env.DATABASE_ATLAS,
+      process.env.DATABASE_LOCALHOST,
 
       {
         connectionFactory: (connection) => {
