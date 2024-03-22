@@ -45,7 +45,7 @@ export class UserService extends CrudService<
 
     return user;
   }
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
     if (createUserDto.role !== 'student' && createUserDto.role !== 'teacher') {
       throw new HttpException(
         { status: 'role illegal' },
@@ -64,10 +64,7 @@ export class UserService extends CrudService<
     const createdModel = await this.create(createUserDto);
     return createdModel;
   }
-  async updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const data = updateUserDto;
     if (data.email || data.role) {
       throw new HttpException(
@@ -90,8 +87,8 @@ export class UserService extends CrudService<
     const validatePassword = await bcrypt.compare(password, user.password);
     if (validatePassword) {
     }
-    const { _id, username } = user.toObject();
-    const access_token = this.jwtService.sign({ _id, username });
+    const { _id, username, role } = user.toObject();
+    const access_token = this.jwtService.sign({ _id, username, role });
     const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
     return { access_token, refresh_token };
   }
