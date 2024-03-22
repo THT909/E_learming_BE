@@ -11,6 +11,7 @@ import {
   Post,
   Headers,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -22,8 +23,9 @@ import {
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('CURD')
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly service: UserService) {}
@@ -79,28 +81,12 @@ export class UserController {
     status: 200,
     description: 'Get data successfully.',
   })
+  // @UseGuards(AuthGuard)
   async getAccessToken(@Headers() header) {
     if (!header) {
       throw new HttpException('Token required', HttpStatus.BAD_REQUEST);
     }
-    console.log('check token', header.token);
     const data = await this.service.getDataUserByToken(header.token);
-
     return data;
   }
-
-  // @Get('email/:email')
-  // async finByEmail(@Param('email') email: string) {
-  //   {
-  //     {
-  //       try {
-  //         console.log('check email:', email);
-  //         const user = await this.service.findByEmail(email);
-  //         return user;
-  //       } catch (error) {
-  //         throw new NotFoundException('User not found');
-  //       }
-  //     }
-  //   }
-  // }
 }
