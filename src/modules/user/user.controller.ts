@@ -12,18 +12,25 @@ import {
   Headers,
   Put,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   ApiOperation,
   ApiResponse,
   ApiTags,
-  ApiBody,
+  ApiConsumes,
   ApiHeader,
+  ApiBody,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as fs from 'fs';
+const PUBLIC_DIR = join(__dirname, '..', '..', '..', 'public');
 
 @ApiTags('User')
 @Controller('user')
@@ -88,5 +95,29 @@ export class UserController {
     }
     const data = await this.service.getDataUserByToken(header.token);
     return data;
+  }
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const filePath = join(PUBLIC_DIR, file.originalname);
+    fs.writeFile(filePath, file.buffer, (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+        return;
+      }
+      console.log('File saved successfully:', filePath);
+    });
   }
 }
