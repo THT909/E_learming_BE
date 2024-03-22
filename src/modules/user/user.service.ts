@@ -81,7 +81,7 @@ export class UserService extends CrudService<
 
   async signIn({ email, password }: LoginUserDto) {
     const user = await this.findByEmail(email);
-    if (!use) {
+    if (!user) {
       return null;
     }
     const validatePassword = await bcrypt.compare(password, user.password);
