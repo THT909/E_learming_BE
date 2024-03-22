@@ -30,12 +30,6 @@ export class AuthController {
       );
     }
     const user = this.userService.signIn(authPayLoad);
-    if (!user) {
-      throw new HttpException(
-        'wrong email or password',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     return user;
   }
 

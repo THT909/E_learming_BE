@@ -32,8 +32,15 @@ export class UserService extends CrudService<
     super(model);
   }
   async findByEmail(email: string) {
-    const user = await this.model.findOne({ email: email });
-    return user;
+    try {
+      const user = await this.model.findOne({ email: email });
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        { status: ' Wrong email or password ' },
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   async getById(id: string) {
