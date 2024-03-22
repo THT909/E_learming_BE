@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { LoginAdminDto } from './dto/login-admin.dto';
 
 @Injectable()
 export class AdminService extends CrudService<
@@ -17,9 +19,15 @@ export class AdminService extends CrudService<
   constructor(
     @InjectModel(Admin.name) readonly model: Model<AdminDocument>,
     private configService: ConfigService,
+    private jwtService: JwtService,
   ) {
     super(model);
   }
+  async findByEmail(email: string) {
+    const user = await this.model.findOne({ email: email });
+    return user;
+  }
+
   async createAdmin(createDto: CreateAdminDto): Promise<AdminDocument> {
     const IsEmail = await this.isValidEmail(createDto.email);
     if (IsEmail == false) {
@@ -60,5 +68,34 @@ export class AdminService extends CrudService<
     const salt = this.configService.get('SALT_ROUNDS');
     const hash = bcrypt.hash(pass, parseInt(salt));
     return hash;
+  }
+  decodeToken(token: string): Promise<any> {
+    return this.jwtService.verify(token);
+  }
+
+  async signIn({ email, password }: LoginAdminDto) {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    const validatePassword = await bcrypt.compare(password, user.password);
+    if (validatePassword) {
+    }
+    const { _id, username } = user.toObject();
+    const access_token = this.jwtService.sign({ _id, username });
+    const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
+    return { access_token, refresh_token };
+  }
+  async getAccessToken(token: string): Promise<any> {
+    try {
+      const data = await this.decodeToken(token);
+      const user = await this.findOne(data._id);
+      const { _id, username } = user.toObject();
+      const access_token = this.jwtService.sign({ _id, username });
+      return { access_token };
+    } catch (error) {
+      console.error('Error decoding token:', error.message);
+      return null;
+    }
   }
 }
