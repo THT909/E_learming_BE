@@ -9,15 +9,22 @@ import {
   NotFoundException,
   Param,
   Post,
+  Headers,
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBody,
+  ApiHeader,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @ApiTags('CURD')
-@Controller('User')
+@Controller('user')
 export class UserController {
   constructor(private readonly service: UserService) {}
 
@@ -63,20 +70,21 @@ export class UserController {
     return await this.service.delete(id);
   }
   @ApiTags('User service')
-  @Post('get_data_user')
-  @ApiBody({
-    schema: { example: { token: 'Input token here' } },
+  @Get('get/get-data-user/')
+  @ApiHeader({
+    name: 'token',
+    description: 'input token here',
   })
   @ApiResponse({
     status: 200,
     description: 'Get data successfully.',
   })
-  async getAccessToken(@Body() body: { token: string }) {
-    if (!body.token) {
+  async getAccessToken(@Headers() header) {
+    if (!header) {
       throw new HttpException('Token required', HttpStatus.BAD_REQUEST);
     }
-    const { token } = body;
-    const data = await this.service.getDataUserByToken(token);
+    console.log('check token', header.token);
+    const data = await this.service.getDataUserByToken(header.token);
 
     return data;
   }

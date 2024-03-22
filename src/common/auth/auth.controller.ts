@@ -17,7 +17,7 @@ import { UserService } from 'src/modules/user/user.service';
 export class AuthController {
   constructor(private authService: UserService) {}
 
-  @Post('sign_in')
+  @Post('sign-in')
   login(@Body() authPayLoad: AuthPayLoadDto) {
     if (!authPayLoad.email || !authPayLoad.password) {
       throw new HttpException(
