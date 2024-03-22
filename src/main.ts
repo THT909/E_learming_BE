@@ -17,6 +17,7 @@ async function bootstrap() {
 
   //config PORT
   const PORT = process.env.PORT || 8080;
+  app.enableCors();
   await app.listen(PORT);
   console.log(`Sever is running at ${await app.getUrl()}`);
 }
