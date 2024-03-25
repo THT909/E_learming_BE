@@ -37,7 +37,7 @@ export class UserService extends CrudService<
       return user;
     } catch (error) {
       throw new HttpException(
-        { status: ' Wrong email or password ' },
+        { status: 'Email is not exist ' },
         HttpStatus.NOT_FOUND,
       );
     }
@@ -91,13 +91,13 @@ export class UserService extends CrudService<
     if (!user) {
       throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
     }
-    const validatePassword = await bcrypt.compare(password, user.password);
+    const validatePassword = await this.comparePass(password, user.password);
     if (validatePassword) {
+      const { _id, username, role } = user.toObject();
+      const access_token = this.jwtService.sign({ _id, username, role });
+      const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
+      return { access_token, refresh_token };
     }
-    const { _id, username, role } = user.toObject();
-    const access_token = this.jwtService.sign({ _id, username, role });
-    const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
-    return { access_token, refresh_token };
   }
   async getAccessToken(token: string): Promise<any> {
     try {
@@ -123,6 +123,10 @@ export class UserService extends CrudService<
       console.error('Error decoding token:', error.message);
       return null;
     }
+  }
+
+  comparePass(pass: string, hashPass: string) {
+    return bcrypt.compare(pass, hashPass);
   }
 
   hashPass(pass: string) {

@@ -3,14 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class AuthDto {
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
   email: string;
-
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   password: string;
-
-  @IsNotEmpty()
-  @IsEnum(['student', 'teacher'])
-  @ApiProperty()
-  role: 'student' | 'teacher';
 }

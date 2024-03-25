@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
+import { dot } from 'node:test/reporters';
 
 @Controller('auth')
 export class AuthController {
@@ -12,10 +13,10 @@ export class AuthController {
     return await this.authService.signUpUser(dto);
   }
 
-  //   @Post('/local/signin')
-  //   signInLocal() {
-  //     this.authService.signInUser();
-  //   }
+  @Post('/user/signin')
+  async signInLocal(@Body() dto: AuthDto) {
+    return await this.authService.signInUser(dto);
+  }
 
   //   @Post('/logout')
   //   logout() {

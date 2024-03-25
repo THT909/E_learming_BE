@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
 import { Tokens, JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { get } from 'http';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,22 @@ export class AuthService {
     const token = await this.getToken((await user)._id, (await user).role);
     return token;
   }
-  async signInUser() {}
+
+  async signInUser(dto: AuthDto): Promise<Tokens> {
+    const user = this.userService.findByEmail(dto.email);
+    if (!user) {
+      throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
+    }
+    const validatePassword = await this.userService.comparePass(
+      dto.password,
+      (await user).password,
+    );
+    if (validatePassword) {
+      const token = await this.getToken((await user)._id, (await user).role);
+      return token;
+    }
+    throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
   async logoutUser() {}
   async refreshTokenUser() {}
 
