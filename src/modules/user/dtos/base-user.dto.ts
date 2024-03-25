@@ -2,7 +2,6 @@ import {
   IsNotEmpty,
   IsEmail,
   IsString,
-  IsDate,
   IsOptional,
   IsEnum,
   IsArray,
@@ -13,19 +12,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as mongoose from 'mongoose';
 
 class NameDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty()
   first_name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty()
   last_name: string;
 }
 
 export class UserDto {
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({ type: NameDto })
   name: NameDto;
 
@@ -49,7 +48,7 @@ export class UserDto {
   @ApiProperty()
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty()
   username: string;
