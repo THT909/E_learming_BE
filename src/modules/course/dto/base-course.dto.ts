@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsEnum, IsString } from 'class-validator';
 
 export class CourseDto {
   @IsNotEmpty()
@@ -18,4 +18,8 @@ export class CourseDto {
   @ApiProperty()
   @IsOptional()
   icon: string;
+  @IsNotEmpty()
+  @IsEnum(['open', 'close'])
+  @ApiProperty()
+  status: 'open' | 'close';
 }

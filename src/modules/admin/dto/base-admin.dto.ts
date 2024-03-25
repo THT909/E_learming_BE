@@ -55,4 +55,9 @@ export class AdminDto {
   @IsString()
   @ApiProperty()
   avatar: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  JWTHash: string;
 }

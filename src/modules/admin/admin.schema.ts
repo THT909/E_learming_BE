@@ -22,6 +22,8 @@ export class Admin {
   password: string;
   @Prop()
   avatar: string;
+  @Prop()
+  JWTHash: string;
 }
 export type AdminDocument = Admin & Document;
 export const AdminSchema = SchemaFactory.createForClass(Admin);

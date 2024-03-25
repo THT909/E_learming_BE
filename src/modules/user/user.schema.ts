@@ -29,6 +29,9 @@ export class User {
   role: 'student' | 'teacher';
   //   @Prop({ type: Types.ObjectId, ref: 'Course' })
   //   Courses: Course[];
+
+  @Prop()
+  JWTHash: string;
 }
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);

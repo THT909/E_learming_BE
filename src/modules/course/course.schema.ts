@@ -10,5 +10,7 @@ export class Course {
   category_id: string;
   @Prop()
   icon: string;
+  @Prop({ type: String, enum: ['open', 'close'] })
+  status: 'open' | 'close';
 }
 export const CourseSchema = SchemaFactory.createForClass(Course);

@@ -73,4 +73,9 @@ export class UserDto {
   // @IsArray()
   // @ApiProperty({ type: mongoose.Schema.Types.ObjectId, isArray: true })
   // courses: mongoose.Schema.Types.ObjectId[];
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  JWTHash: string;
 }
