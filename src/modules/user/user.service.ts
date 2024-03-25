@@ -125,6 +125,14 @@ export class UserService extends CrudService<
     }
   }
 
+  async updateToken(id: string, token: string) {
+    try {
+      return await this.model.findByIdAndUpdate(id, { JWTHash: token });
+    } catch (error) {
+      throw new HttpException('error', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   comparePass(pass: string, hashPass: string) {
     return bcrypt.compare(pass, hashPass);
   }

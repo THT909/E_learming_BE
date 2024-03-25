@@ -18,6 +18,14 @@ export class AuthService {
   async signUpUser(dto: CreateUserDto) {
     const user = this.userService.createUser(dto);
     const token = await this.getToken((await user)._id, (await user).role);
+    try {
+      await this.userService.updateToken((await user)._id, token.refresh_token);
+    } catch (error) {
+      throw new HttpException(
+        'Error update token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     return token;
   }
 
@@ -32,11 +40,28 @@ export class AuthService {
     );
     if (validatePassword) {
       const token = await this.getToken((await user)._id, (await user).role);
+      try {
+        await this.userService.updateToken(
+          (await user)._id,
+          token.refresh_token,
+        );
+      } catch (error) {
+        throw new HttpException(
+          'Error update token',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
       return token;
     }
     throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
   }
-  async logoutUser() {}
+  async logoutUser(id: string) {
+    const token = null;
+
+    const res = await this.userService.updateToken(id, token);
+    return new HttpException('ok', HttpStatus.OK);
+  }
   async refreshTokenUser() {}
 
   async signUpAdmin() {}

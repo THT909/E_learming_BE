@@ -1,9 +1,20 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Headers,
+  UseGuards,
+  Req,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
 import { dot } from 'node:test/reporters';
-
+import { ApiBearerAuth, ApiHeader, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -18,10 +29,32 @@ export class AuthController {
     return await this.authService.signInUser(dto);
   }
 
-  //   @Post('/logout')
-  //   logout() {
-  //     this.authService.logoutUser();
-  //   }
+  @ApiBearerAuth()
+  // @ApiHeader({
+  //   name: 'Authorization',
+  //   description: 'Bearer access token',
+  //   required: true,
+  //   schema: {
+  //     type: 'string',
+  //     format: 'Bearer <token>',
+  //   },
+  // })
+  @ApiResponse({
+    status: 200,
+    description: 'Get data successfully.',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/logout')
+  async logout(@Req() req: Request) {
+    const user = req.user;
+    if (!user || !user['id']) {
+      throw new HttpException(
+        'User not found in request',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.authService.logoutUser(user['id']);
+  }
 
   //   @Post('/refresh')
   //   refreshToken() {
