@@ -12,7 +12,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { get } from 'http';
 import { use } from 'passport';
-import * as argon from 'argon2';
 @Injectable()
 export class AuthService {
   constructor(
@@ -69,15 +68,22 @@ export class AuthService {
     return new HttpException('ok', HttpStatus.OK);
   }
   async refreshTokenUser(id: string, token: string): Promise<Tokens> {
-    console.log('check', id, '||||||', token);
-
     const user = this.userService.getById(id);
     if (!user) throw new ForbiddenException('Access Denied ');
-    const rtMatches = await argon.verify((await user).JWTHash, token);
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getToken((await user)._id, (await user).email);
-
-    return tokens;
+    let verify = await this.jwtService.verifyAsync(token, {
+      secret: this.configService.get('RT_SECRET'),
+    });
+    let checkExistToken = await this.userService.checkExistToken(
+      verify._id,
+      token,
+    );
+    if (checkExistToken) {
+      let tokens = await this.getToken(verify._id, verify.role);
+      await this.userService.updateToken(verify._id, tokens.refresh_token);
+      return tokens;
+    }else{
+      throw new HttpException("access denied",HttpStatus.FORBIDDEN)
+    }
   }
 
   async signUpAdmin() {}
