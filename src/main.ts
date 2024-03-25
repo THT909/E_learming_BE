@@ -7,10 +7,9 @@ async function bootstrap() {
 
   //config swagger
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('E-Learning')
+    .setDescription('The  API make by SGOD')
     .setVersion('1.0')
-    .addTag('cats')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

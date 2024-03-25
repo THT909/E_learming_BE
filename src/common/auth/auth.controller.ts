@@ -30,21 +30,12 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  // @ApiHeader({
-  //   name: 'Authorization',
-  //   description: 'Bearer access token',
-  //   required: true,
-  //   schema: {
-  //     type: 'string',
-  //     format: 'Bearer <token>',
-  //   },
-  // })
   @ApiResponse({
     status: 200,
     description: 'Get data successfully.',
   })
   @UseGuards(AuthGuard('jwt'))
-  @Post('/logout')
+  @Post('/user/logout')
   async logout(@Req() req: Request) {
     const user = req.user;
     if (!user || !user['id']) {
@@ -56,8 +47,18 @@ export class AuthController {
     return await this.authService.logoutUser(user['id']);
   }
 
-  //   @Post('/refresh')
-  //   refreshToken() {
-  //     this.authService.refreshTokenUser();
-  //   }
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Get data successfully.',
+  })
+  @UseGuards(AuthGuard('jwt-refresh'))
+  @Post('/user/refresh')
+  async refreshToken(@Req() req: Request) {
+    const user = req.user;
+    return await this.authService.refreshTokenUser(
+      user['id'],
+      user['refreshToken'],
+    );
+  }
 }
