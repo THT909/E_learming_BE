@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './modules/user/user.module';
-import { AuthModule } from './common/auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 
 @Module({

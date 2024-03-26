@@ -43,14 +43,14 @@ export class UserService extends CrudService<
     }
   }
 
-  async checkExistToken(id:string,rt:string){
-    let check=true;
-    const user=await this.model.findOne({
-      _id:id,
-      JWTHash:rt
-    })
-    if(!user){
-      check=false;
+  async checkExistToken(id: string, rt: string) {
+    let check = true;
+    const user = await this.model.findOne({
+      _id: id,
+      JWTHash: rt,
+    });
+    if (!user) {
+      check = false;
     }
     return check;
   }

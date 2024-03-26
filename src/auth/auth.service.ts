@@ -67,29 +67,25 @@ export class AuthService {
     const res = await this.userService.updateToken(id, token);
     return new HttpException('ok', HttpStatus.OK);
   }
-  async refreshTokenUser(id: string, token: string): Promise<Tokens> {
-    const user = this.userService.getById(id);
-    if (!user) throw new ForbiddenException('Access Denied ');
+  async refreshTokenUser(token: string): Promise<Tokens> {
+    console.log(token);
+
     let verify = await this.jwtService.verifyAsync(token, {
       secret: this.configService.get('RT_SECRET'),
     });
+    console.log(verify, 'check token');
     let checkExistToken = await this.userService.checkExistToken(
-      verify._id,
+      verify.id,
       token,
     );
     if (checkExistToken) {
-      let tokens = await this.getToken(verify._id, verify.role);
-      await this.userService.updateToken(verify._id, tokens.refresh_token);
+      let tokens = await this.getToken(verify.id, verify.role);
+      await this.userService.updateToken(verify.id, tokens.refresh_token);
       return tokens;
-    }else{
-      throw new HttpException("access denied",HttpStatus.FORBIDDEN)
+    } else {
+      throw new HttpException('access denied', HttpStatus.FORBIDDEN);
     }
   }
-
-  async signUpAdmin() {}
-  async signInAdmin() {}
-  async logoutAdmin() {}
-  async refreshTokenAdmin() {}
 
   async getToken(id: string, role: string): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
@@ -112,4 +108,8 @@ export class AuthService {
       refresh_token: rt,
     };
   }
+  async signUpAdmin() {}
+  async signInAdmin() {}
+  async logoutAdmin() {}
+  async refreshTokenAdmin() {}
 }
