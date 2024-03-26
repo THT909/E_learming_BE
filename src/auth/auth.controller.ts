@@ -15,6 +15,10 @@ import { dot } from 'node:test/reporters';
 import { ApiBearerAuth, ApiHeader, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { RolesGuard } from '../auth/role.guard';
+import { HasRoles } from './hasRole.decorator';
+import { Role } from 'src/common/role.enum';
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -34,7 +38,8 @@ export class AuthController {
     status: 200,
     description: 'Get data successfully.',
   })
-  @UseGuards(AuthGuard('jwt'))
+  // @HasRoles(Role.Teacher, Role.Admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('/user/logout')
   async logout(@Req() req: Request) {
     const user = req.user;
