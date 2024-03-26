@@ -67,6 +67,18 @@ export class AdminService extends CrudService<
       throw new HttpException('error', HttpStatus.BAD_REQUEST);
     }
   }
+  async checkExistToken(id: string, rt: string) {
+    let check = true;
+    const user = await this.model.findOne({
+      _id: id,
+      JWTHash: rt,
+    });
+
+    if (!user) {
+      check = false;
+    }
+    return check;
+  }
 
   isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

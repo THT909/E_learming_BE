@@ -65,11 +65,16 @@ export class AuthService {
     const token = null;
 
     const res = await this.userService.updateToken(id, token);
-    return new HttpException('ok', HttpStatus.OK);
+    try {
+    } catch (error) {
+      throw new HttpException('Error form sever', HttpStatus.FORBIDDEN);
+    }
+    if (res) {
+      return new HttpException('ok', HttpStatus.NO_CONTENT);
+    }
+    throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
   }
   async refreshTokenUser(token: string): Promise<Tokens> {
-    console.log(token);
-
     let verify = await this.jwtService.verifyAsync(token, {
       secret: this.configService.get('RT_SECRET'),
     });
@@ -81,6 +86,62 @@ export class AuthService {
     if (checkExistToken) {
       let tokens = await this.getToken(verify.id, verify.role);
       await this.userService.updateToken(verify.id, tokens.refresh_token);
+      return tokens;
+    } else {
+      throw new HttpException('access denied', HttpStatus.FORBIDDEN);
+    }
+  }
+
+  async signInAdmin(dto: AuthDto): Promise<Tokens> {
+    const admin = await this.adminService.findByEmail(dto.email);
+    if (!admin) {
+      throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
+    }
+    const validatePassword = await this.adminService.comparePass(
+      dto.password,
+      admin.password,
+    );
+    if (validatePassword) {
+      console.log(admin);
+      const token = await this.getToken(admin._id, 'admin');
+      try {
+        await this.adminService.updateToken(admin._id, token.refresh_token);
+      } catch (error) {
+        throw new HttpException(
+          'Error update token',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return token;
+    }
+    throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  async logoutAdmin(id: string) {
+    const token = null;
+    const res = await this.adminService.updateToken(id, token);
+    try {
+    } catch (error) {
+      throw new HttpException('Error form sever', HttpStatus.FORBIDDEN);
+    }
+    if (res) {
+      return new HttpException('ok', HttpStatus.NO_CONTENT);
+    }
+    throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+  }
+  async refreshTokenAdmin(token: string): Promise<Tokens> {
+    let verify = await this.jwtService.verifyAsync(token, {
+      secret: this.configService.get('RT_SECRET'),
+    });
+
+    let checkExistToken = await this.adminService.checkExistToken(
+      verify.id,
+      token,
+    );
+
+    if (checkExistToken) {
+      let tokens = await this.getToken(verify.id, verify.role);
+      await this.adminService.updateToken(verify.id, tokens.refresh_token);
       return tokens;
     } else {
       throw new HttpException('access denied', HttpStatus.FORBIDDEN);
@@ -108,31 +169,4 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signInAdmin(dto: AuthDto): Promise<Tokens> {
-    const admin = await this.adminService.findByEmail(dto.email);
-    if (!admin) {
-      throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
-    }
-    const validatePassword = await this.adminService.comparePass(
-      dto.password,
-      admin.password,
-    );
-    if (validatePassword) {
-      console.log(admin);
-      const token = await this.getToken(admin._id, 'admin');
-      try {
-        await this.adminService.updateToken(admin._id, token.refresh_token);
-      } catch (error) {
-        throw new HttpException(
-          'Error update token',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      return token;
-    }
-    throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  async logoutAdmin() {}
-  async refreshTokenAdmin() {}
 }

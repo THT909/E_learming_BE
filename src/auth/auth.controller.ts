@@ -23,6 +23,7 @@ import { Request } from 'express';
 import { RolesGuard } from '../auth/role.guard';
 import { HasRoles } from './hasRole.decorator';
 import { Role } from 'src/common/role.enum';
+import { log } from 'console';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -50,7 +51,7 @@ export class AuthController {
   // @HasRoles(Role.Teacher, Role.Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('/user/logout')
-  async logout(@Req() req: Request) {
+  async logoutUser(@Req() req: Request) {
     const user = req.user;
     if (!user || !user['id']) {
       throw new HttpException(
@@ -60,6 +61,22 @@ export class AuthController {
     }
     return await this.authService.logoutUser(user['id']);
   }
+  @ApiBearerAuth()
+  // @HasRoles(Role.Teacher, Role.Admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Post('/admin/logout/')
+  async logoutAdmin(@Req() req: Request) {
+    const user = req.user;
+    console.log(user);
+    if (!user || !user['id']) {
+      user;
+      throw new HttpException(
+        'User not found in request',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.authService.logoutAdmin(user['id']);
+  }
 
   @ApiBearerAuth()
   @ApiResponse({
@@ -68,8 +85,21 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('jwt-refresh'))
   @Post('/user/refresh')
-  async refreshToken(@Req() req: Request) {
+  async refreshTokenUser(@Req() req: Request) {
     const user = req.user;
     return await this.authService.refreshTokenUser(user['refreshToken']);
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Get data successfully.',
+  })
+  @HasRoles(Role.Admin)
+  @UseGuards(AuthGuard('jwt-refresh'), RolesGuard)
+  @Post('/admin/refresh')
+  async refreshTokenAdmin(@Req() req: Request) {
+    const user = req.user;
+    return await this.authService.refreshTokenAdmin(user['refreshToken']);
   }
 }
