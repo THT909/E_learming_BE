@@ -12,13 +12,18 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
 import { dot } from 'node:test/reporters';
-import { ApiBearerAuth, ApiHeader, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { RolesGuard } from '../auth/role.guard';
 import { HasRoles } from './hasRole.decorator';
 import { Role } from 'src/common/role.enum';
-
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -29,8 +34,12 @@ export class AuthController {
   }
 
   @Post('/user/signin')
-  async signInLocal(@Body() dto: AuthDto) {
+  async signInUser(@Body() dto: AuthDto) {
     return await this.authService.signInUser(dto);
+  }
+  @Post('/admin/signin')
+  async signInAdmin(@Body() dto: AuthDto) {
+    return await this.authService.signInAdmin(dto);
   }
 
   @ApiBearerAuth()

@@ -60,6 +60,14 @@ export class AdminService extends CrudService<
     return res;
   }
 
+  async updateToken(id: string, token: string) {
+    try {
+      return await this.model.findByIdAndUpdate(id, { JWTHash: token });
+    } catch (error) {
+      throw new HttpException('error', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -72,30 +80,7 @@ export class AdminService extends CrudService<
   decodeToken(token: string): Promise<any> {
     return this.jwtService.verify(token);
   }
-
-  async signIn({ email, password }: LoginAdminDto) {
-    const user = await this.findByEmail(email);
-    if (!user) {
-      return null;
-    }
-    const validatePassword = await bcrypt.compare(password, user.password);
-    if (validatePassword) {
-    }
-    const { _id, username } = user.toObject();
-    const access_token = this.jwtService.sign({ _id, username });
-    const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
-    return { access_token, refresh_token };
-  }
-  async getAccessToken(token: string): Promise<any> {
-    try {
-      const data = await this.decodeToken(token);
-      const user = await this.findOne(data._id);
-      const { _id, username } = user.toObject();
-      const access_token = this.jwtService.sign({ _id, username });
-      return { access_token };
-    } catch (error) {
-      console.error('Error decoding token:', error.message);
-      return null;
-    }
+  comparePass(pass: string, hashPass: string) {
+    return bcrypt.compare(pass, hashPass);
   }
 }

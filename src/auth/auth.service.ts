@@ -10,12 +10,12 @@ import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
 import { Tokens, JwtPayload } from './types';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { get } from 'http';
-import { use } from 'passport';
+import { AdminService } from 'src/modules/admin/admin.service';
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private adminService: AdminService,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -108,8 +108,31 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-  async signUpAdmin() {}
-  async signInAdmin() {}
+  async signInAdmin(dto: AuthDto): Promise<Tokens> {
+    const admin = await this.adminService.findByEmail(dto.email);
+    if (!admin) {
+      throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
+    }
+    const validatePassword = await this.adminService.comparePass(
+      dto.password,
+      admin.password,
+    );
+    if (validatePassword) {
+      console.log(admin);
+      const token = await this.getToken(admin._id, 'admin');
+      try {
+        await this.adminService.updateToken(admin._id, token.refresh_token);
+      } catch (error) {
+        throw new HttpException(
+          'Error update token',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return token;
+    }
+    throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
   async logoutAdmin() {}
   async refreshTokenAdmin() {}
 }

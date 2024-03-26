@@ -24,6 +24,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiConsumes,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -79,24 +80,6 @@ export class UserController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.service.delete(id);
-  }
-  @ApiTags('User service')
-  @Get('get/get-data-user/')
-  @ApiHeader({
-    name: 'token',
-    description: 'input token here',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Get data successfully.',
-  })
-  // @UseGuards(AuthGuard)
-  async getAccessToken(@Headers() header) {
-    if (!header) {
-      throw new HttpException('Token required', HttpStatus.BAD_REQUEST);
-    }
-    const data = await this.service.getDataUserByToken(header.token);
-    return data;
   }
   @Post('upload')
   @ApiConsumes('multipart/form-data')
