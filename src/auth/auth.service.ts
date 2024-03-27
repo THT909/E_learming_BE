@@ -129,6 +129,21 @@ export class AuthService {
     }
     throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
   }
+
+  //******************************************************************************************** */
+
+  googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+
+    return {
+      message: 'User information from google',
+      token: req.user.accessToken,
+    };
+  }
+
+  //******************************************************************************************** */
   async refreshTokenAdmin(token: string): Promise<Tokens> {
     let verify = await this.jwtService.verifyAsync(token, {
       secret: this.configService.get('RT_SECRET'),

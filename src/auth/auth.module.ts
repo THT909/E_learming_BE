@@ -5,9 +5,10 @@ import { UserModule } from 'src/modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AtStrategy, RtStrategy } from './strategies';
 import { AdminModule } from 'src/modules/admin/admin.module';
+import { GoogleStrategy } from './strategies/google.strategy';
 @Module({
   imports: [UserModule, AdminModule, JwtModule],
-  providers: [AuthService, AtStrategy, RtStrategy],
+  providers: [AuthService, AtStrategy, RtStrategy, GoogleStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

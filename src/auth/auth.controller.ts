@@ -5,13 +5,14 @@ import {
   Headers,
   UseGuards,
   Req,
+  Get,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
-import { dot } from 'node:test/reporters';
+
 import {
   ApiBearerAuth,
   ApiHeader,
@@ -23,7 +24,7 @@ import { Request } from 'express';
 import { RolesGuard } from '../auth/role.guard';
 import { HasRoles } from './hasRole.decorator';
 import { Role } from 'src/common/role.enum';
-import { log } from 'console';
+import { AppService } from '../app.service';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -101,5 +102,15 @@ export class AuthController {
   async refreshTokenAdmin(@Req() req: Request) {
     const user = req.user;
     return await this.authService.refreshTokenAdmin(user['refreshToken']);
+  }
+
+  @Get('/')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {}
+
+  @Get('/google/redirect')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req) {
+    return this.authService.googleLogin(req);
   }
 }
