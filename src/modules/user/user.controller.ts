@@ -2,19 +2,16 @@ import {
   Body,
   Get,
   Put,
-  Res,
   Post,
   Param,
   Delete,
-  Headers,
-  HttpCode,
   UseGuards,
   Controller,
   HttpStatus,
   UploadedFile,
   HttpException,
   UseInterceptors,
-  NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -32,7 +29,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import path, { join } from 'path';
 import * as fs from 'fs';
-import { Response } from 'express';
+import { Request } from 'express';
+
 const PUBLIC_DIR = join(__dirname, '..', '..', '..', 'public');
 
 @ApiTags('User')
@@ -99,6 +97,13 @@ export class UserController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.service.delete(id);
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @Post('/get-data')
+  async getDataByToken(@Req() req: Request) {
+    const user = req.user;
+    return await this.service.getDataByToken(user['id']);
   }
 
   // @Post('upload')

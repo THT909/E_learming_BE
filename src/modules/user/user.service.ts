@@ -18,6 +18,7 @@ import { LoginUserDto } from './dtos/login_user.dto';
 import { use } from 'passport';
 import { JwtService } from '@nestjs/jwt';
 import { isEmail } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 @Injectable()
 export class UserService extends CrudService<
   UserDocument,
@@ -98,45 +99,6 @@ export class UserService extends CrudService<
     return res;
   }
 
-  async signIn({ email, password }: LoginUserDto) {
-    const user = await this.findByEmail(email);
-    if (!user) {
-      throw new HttpException('Wrong email or password', HttpStatus.NOT_FOUND);
-    }
-    const validatePassword = await this.comparePass(password, user.password);
-    if (validatePassword) {
-      const { _id, username, role } = user.toObject();
-      const access_token = this.jwtService.sign({ _id, username, role });
-      const refresh_token = this.jwtService.sign({ _id }, { expiresIn: '7d' });
-      return { access_token, refresh_token };
-    }
-  }
-  async getAccessToken(token: string): Promise<any> {
-    try {
-      const data = await this.decodeToken(token);
-      const user: UserDocument = await this.findOne(data._id);
-      const { _id, username } = user.toObject();
-      const access_token = this.jwtService.sign({ _id, username });
-      return { access_token };
-    } catch (error) {
-      console.error('Error decoding token:', error.message);
-      return null;
-    }
-  }
-
-  async getDataUserByToken(token: string): Promise<any> {
-    try {
-      const dataToken = await this.decodeToken(token);
-      const user = await this.findOne(dataToken._id);
-      const { username, name, avatar, role } = user.toObject();
-      const data = { username, name, avatar, role };
-      return { data };
-    } catch (error) {
-      console.error('Error decoding token:', error.message);
-      return null;
-    }
-  }
-
   async updateToken(id: string, token: string) {
     try {
       return await this.model.findByIdAndUpdate(id, { JWTHash: token });
@@ -145,7 +107,24 @@ export class UserService extends CrudService<
     }
   }
 
-  async uploadImage(file: File) {}
+  async getDataByToken(id: string) {
+    const user = await this.findOne(id);
+
+    if (!user) {
+      throw new HttpException('Error from server', HttpStatus.FORBIDDEN);
+    }
+    let data = {
+      _id: user._id,
+      name: user.name,
+      birthday: user.birthday,
+      phone_number: user.phone_number,
+      email: user.email,
+      username: user.username,
+      avatar: user.avatar,
+    };
+    const res = { message: 'Get data successfully !', data };
+    return res;
+  }
 
   comparePass(pass: string, hashPass: string) {
     return bcrypt.compare(pass, hashPass);

@@ -13,11 +13,11 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
       ignoreExpiration: true,
     });
   }
-
   validate(payload: JwtPayload) {
     if (payload['exp'] < Date.now() / 1000) {
       throw new UnauthorizedException('Token expired');
     }
+    console.log('Auth success');
 
     // Nếu token hợp lệ, trả về thông tin người dùng
     return payload;

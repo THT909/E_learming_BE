@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Post,
-  Headers,
   UseGuards,
   Req,
   HttpException,
@@ -11,19 +10,14 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
-import { dot } from 'node:test/reporters';
-import {
-  ApiBearerAuth,
-  ApiHeader,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { RolesGuard } from '../auth/role.guard';
 import { HasRoles } from './hasRole.decorator';
 import { Role } from 'src/common/role.enum';
-import { log } from 'console';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -48,7 +42,7 @@ export class AuthController {
     status: 200,
     description: 'Get data successfully.',
   })
-  // @HasRoles(Role.Teacher, Role.Admin)
+  // @HasRoles(Role.Teacher, Role.Admin)c
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post('/user/logout')
   async logoutUser(@Req() req: Request) {
