@@ -24,6 +24,11 @@ export class Admin {
   avatar: string;
   @Prop()
   JWTHash: string;
+
+  @Prop()
+  otp_Exp: Date;
+  @Prop()
+  otp_forgot_password: String;
 }
 export type AdminDocument = Admin & Document;
 export const AdminSchema = SchemaFactory.createForClass(Admin);

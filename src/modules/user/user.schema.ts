@@ -31,6 +31,10 @@ export class User {
 
   @Prop()
   JWTHash: string;
+  @Prop()
+  otp_Exp: Date;
+  @Prop()
+  otp_forgot_password: String;
 }
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
