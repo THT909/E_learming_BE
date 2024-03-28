@@ -70,7 +70,7 @@ export class AuthService {
       throw new HttpException('Error form sever', HttpStatus.FORBIDDEN);
     }
     if (res) {
-      return new HttpException('ok', HttpStatus.NO_CONTENT);
+      return new HttpException('LogOut success', HttpStatus.NO_CONTENT);
     }
     throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
   }

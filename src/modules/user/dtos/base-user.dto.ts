@@ -12,12 +12,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as mongoose from 'mongoose';
 
 class NameDto {
-  @IsOptional()
   @IsString()
   @ApiProperty()
   first_name: string;
 
-  @IsOptional()
   @IsString()
   @ApiProperty()
   last_name: string;
@@ -61,7 +59,7 @@ export class UserDto {
   @IsOptional()
   @IsString()
   @ApiProperty()
-  avatar: string;
+  avatar?: string;
 
   @IsNotEmpty()
   @IsEnum(['student', 'teacher'])
@@ -72,9 +70,4 @@ export class UserDto {
   // @IsArray()
   // @ApiProperty({ type: mongoose.Schema.Types.ObjectId, isArray: true })
   // courses: mongoose.Schema.Types.ObjectId[];
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty()
-  JWTHash: string;
 }

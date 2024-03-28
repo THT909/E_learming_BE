@@ -145,10 +145,11 @@ export class UserService extends CrudService<
     }
   }
 
+  async uploadImage(file: File) {}
+
   comparePass(pass: string, hashPass: string) {
     return bcrypt.compare(pass, hashPass);
   }
-
   hashPass(pass: string) {
     const salt = this.configService.get('SALT_ROUNDS');
     const hash = bcrypt.hash(pass, parseInt(salt));

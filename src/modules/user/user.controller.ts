@@ -30,7 +30,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { join } from 'path';
+import path, { join } from 'path';
 import * as fs from 'fs';
 import { Response } from 'express';
 const PUBLIC_DIR = join(__dirname, '..', '..', '..', 'public');
@@ -67,8 +67,27 @@ export class UserController {
   }
   @ApiOperation({ summary: 'Create User' })
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.service.createUser(createUserDto);
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    if (!file) {
+      const data = await this.service.createUser(createUserDto);
+      const res = { message: 'create data  withdraw image', data };
+      throw new HttpException(res, HttpStatus.OK);
+    }
+    const filePath = join(PUBLIC_DIR, file.originalname);
+    fs.writeFile(filePath, file.buffer, (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+      }
+      console.log('File saved successfully:', filePath);
+    });
+    createUserDto.avatar = filePath;
+    const data = await this.service.createUser(createUserDto);
+    const res = { message: 'create data  with image', data };
+    throw new HttpException(res, HttpStatus.OK);
   }
   @Put(':id')
   async updateUser(
@@ -81,34 +100,35 @@ export class UserController {
   async delete(@Param('id') id: string) {
     return await this.service.delete(id);
   }
-  @Post('upload')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const filePath = join(PUBLIC_DIR, file.originalname);
-    fs.writeFile(filePath, file.buffer, (err) => {
-      if (err) {
-        console.error('Error saving file:', err);
-        return;
-      }
-      console.log('File saved successfully:', filePath);
-    });
-  }
 
-  @Get('image/:imageName')
-  async getImage(@Res() res: Response, @Param('imageName') imageName: string) {
-    const imagePath = join(__dirname, '..', '..', '..', 'public', imageName);
-    res.sendFile(imagePath);
-  }
+  // @Post('upload')
+  // @ApiConsumes('multipart/form-data')
+  // @UseInterceptors(FileInterceptor('file'))
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //   const filePath = join(PUBLIC_DIR, file.originalname);
+  //   fs.writeFile(filePath, file.buffer, (err) => {
+  //     if (err) {
+  //       console.error('Error saving file:', err);
+  //       return;
+  //     }
+  //     console.log('File saved successfully:', filePath);
+  //   });
+  // }
+
+  // @Get('image/:imageName')
+  // async getImage(@Res() res: Response, @Param('imageName') imageName: string) {
+  //   const imagePath = join(__dirname, '..', '..', '..', 'public', imageName);
+  //   res.sendFile(imagePath);
+  // }
 }
