@@ -1,8 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  Body,
-  Param,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -14,11 +12,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { LoginUserDto } from './dtos/login_user.dto';
-import { use } from 'passport';
+
 import { JwtService } from '@nestjs/jwt';
-import { isEmail } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class UserService extends CrudService<
   UserDocument,
@@ -140,5 +138,11 @@ export class UserService extends CrudService<
   isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+  generateFilename(originalFilename: string): string {
+    const uniqueId = uuidv4();
+    const extension = path.extname(originalFilename);
+    const newFilename = `${uniqueId}${extension}`;
+    return newFilename;
   }
 }

@@ -75,7 +75,8 @@ export class UserController {
       const res = { message: 'create data  withdraw image', data };
       throw new HttpException(res, HttpStatus.OK);
     }
-    const filePath = join(PUBLIC_DIR, file.originalname);
+    const newFilename = await this.service.generateFilename(file.originalname);
+    const filePath = await join(PUBLIC_DIR, newFilename);
     fs.writeFile(filePath, file.buffer, (err) => {
       if (err) {
         console.error('Error saving file:', err);

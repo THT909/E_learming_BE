@@ -13,7 +13,7 @@ export class Admin {
   @Prop()
   birthday: Date;
   @Prop()
-  phone_umber: string;
+  phone_number: string;
   @Prop({ required: true })
   email: string;
   @Prop({ required: true })
